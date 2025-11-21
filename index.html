@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <!-- Nếu file ảnh của bạn là favicon.png -->
+    <link rel="icon" href="./favicon.png" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống giám định BHYT - Bệnh viện Y học cổ truyền Quảng Nam</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --secondary: #34a853;
+            --accent: #fbbc05;
+            --danger: #ea4335;
+            --light: #f8f9fa;
+            --dark: #202124;
+            --success: #34a853;
+            --warning: #fbbc05;
+            --info: #17a2b8;
+            --bg-gradient: linear-gradient(135deg, #1a73e8 0%, #34a853 100%);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f8ff"/><path d="M30,30 L70,30 L70,70 L30,70 Z" fill="none" stroke="%23e1f5fe" stroke-width="2"/><circle cx="50" cy="50" r="20" fill="none" stroke="%23e1f5fe" stroke-width="2"/></svg>');
+            color: var(--dark);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: #1a73e8;
+            font-size: 1em;
+            animation: fall linear forwards;
+            z-index: -1;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(105vh) rotate(360deg);
+            }
+        }
+
+        header {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo span {
+            font-size: 1rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem 0;
+            transition: all 0.3s ease;
+            z-index: 90;
+            overflow-y: auto;
+            max-height: calc(100vh - 80px);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            font-size: 15px;
+        }
+
+        .menu-item {
+            padding: 0.9rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(26, 115, 232, 0.05);
+            border-left-color: var(--primary);
+        }
+
+        .menu-item.active {
+            background: rgba(26, 115, 232, 0.1);
+            border-left-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .menu-item i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            background: #f8f9fa;
+            overflow-y: auto;
+            max-height: calc(100vh - 80px);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-label {
+            font-weight: 500;
+            color: #5f6368;
+        }
+
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .stat-card.primary::before {
+            background: var(--primary);
+        }
+
+        .stat-card.success::before {
+            background: var(--success);
+        }
+
+        .stat-card.warning::before {
+            background: var(--warning);
+        }
+
+        .stat-card.danger::before {
+            background: var(--danger);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            color: #5f6368;
+            font-size: 0.9rem;
+        }
+
+        .stat-icon {
+            align-self: flex-end;
+            font-size: 1.8rem;
+            opacity: 0.7;
+        }
+
+        .tabs-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .tabs-header {
+            display: flex;
+            background: #f1f3f4;
+            border-bottom: 1px solid #e0e0e0;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: rgba(26, 115, 232, 0.05);
+        }
+
+        .tab.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        .tab-content {
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th, td {
+            padding: 0.8rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: rgba(26, 115, 232, 0.02);
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-success {
+            background: rgba(52, 168, 83, 0.1);
+            color: var(--success);
+        }
+
+        .status-warning {
+            background: rgba(251, 188, 5, 0.1);
+            color: var(--warning);
+        }
+
+        .status-danger {
+            background: rgba(234, 67, 53, 0.1);
+            color: var(--danger);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0d62d9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(26, 115, 232, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(26, 115, 232, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #2d8c47;
+            transform: translateY(-2px);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+        }
+
+        .icd-result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid var(--primary);
+        }
+
+        .icd-code {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .icd-description {
+            margin-top: 0.5rem;
+            color: #5f6368;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th, .data-table td {
+            padding: 0.8rem;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        .data-table th {
+            background: #f1f3f4;
+            font-weight: 600;
+        }
+
+        .data-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .year-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .year-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .year-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .year-btn:hover:not(.active) {
+            background: #f1f3f4;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: #0d62d9;
+            transform: translateY(-3px);
+        }
+
+        .decision-content {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .decision-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        .decision-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .decision-table th, .decision-table td {
+            padding: 0.8rem;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        .decision-table th {
+            background: #f1f3f4;
+            font-weight: 600;
+        }
+
+        .decision-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .category-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-list li:last-child {
+            border-bottom: none;
+        }
+
+        .category-list i {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: none;                
+            }
+            
+            .sidebar-menu {
+                display: flex;
+                overflow-x: auto;                
+            }
+            
+            .menu-item {
+                white-space: nowrap;
+            }
+            
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs-header {
+                flex-wrap: wrap;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .filter-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tuyết rơi background -->
+    <div id="snow-container"></div>
+
+    <!-- Nút quay về đầu trang -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Thông báo -->
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">Thao tác thành công!</span>
+    </div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <div>
+                    <h1>Hệ thống giám sát dữ liệu BHYT</h1>
+                    <span>Bệnh viện Y học cổ truyền Quảng Nam</span>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div>
+                    <div>Nguyễn Văn Dũng</div>
+                    <div style="font-size: 0.8rem; opacity: 0.8;">Trưởng phòng KHTH-ĐD</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-content="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="menu-item" data-content="qd-3618">
+                    <i class="fas fa-file-medical"></i>
+                    <span>Quyết định 3618/QĐ-BHXH</span>
+                </li>
+                <li class="menu-item" data-content="qd-130">
+                    <i class="fas fa-file-medical-alt"></i>
+                    <span>Quyết định 130/QĐ-BYT</span>
+                </li>
+                <li class="menu-item" data-content="qd-4750">
+                    <i class="fas fa-file-prescription"></i>
+                    <span>Quyết định 4750/QĐ-BYT</span>
+                </li>
+                <li class="menu-item" data-content="qd-3176">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Quyết định 3176/QĐ-BYT</span>
+                </li>
+                <li class="menu-item" data-content="danh-muc">
+                    <i class="fas fa-database"></i>
+                    <span>Danh mục dùng chung</span>
+                </li>
+                <li class="menu-item" data-content="icd-10">
+                    <i class="fas fa-search"></i>
+                    <span>Kiểm tra ICD-10</span>
+                </li>
+                <li class="menu-item" data-content="settings">
+                    <i class="fas fa-cogs"></i>
+                    <span>Giường bệnh kế hoạch</span>
+                </li>
+                <li class="menu-item" data-content="help">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Trợ giúp & Hỗ trợ</span>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <!-- Dashboard Content -->
+            <div id="dashboard" class="content-section active">
+                <div class="dashboard-header">
+                    <h2 class="dashboard-title">Tổng quan hệ thống</h2>
+                </div>
+
+                <!-- Bộ lọc năm/tháng -->
+                <div class="filter-container">
+                    <div class="filter-group">
+                        <span class="filter-label">Năm:</span>
+                        <select class="filter-select" id="yearFilter">
+                            <option value="all">Tất cả năm</option>
+                            <!-- Options sẽ được thêm bằng JavaScript -->
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label">Tháng:</span>
+                        <select class="filter-select" id="monthFilter">
+                            <option value="all">Tất cả tháng</option>
+                            <!-- Options sẽ được thêm bằng JavaScript -->
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="applyFilter">
+                        <i class="fas fa-filter"></i> Áp dụng
+                    </button>
+                    <button class="btn btn-outline" id="resetFilter">
+                        <i class="fas fa-redo"></i> Đặt lại
+                    </button>
+                </div>
+
+                <div class="stats-cards">
+                    <div class="stat-card primary">
+                        <div class="stat-value" id="totalRecords">0</div>
+                        <div class="stat-label">Tổng số hồ sơ</div>
+                        <i class="fas fa-file-invoice stat-icon"></i>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-value" id="validRecords">0</div>
+                        <div class="stat-label">Hồ sơ hợp lệ</div>
+                        <i class="fas fa-check-circle stat-icon"></i>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-value" id="warningRecords">0</div>
+                        <div class="stat-label">Cảnh báo cần xem xét</div>
+                        <i class="fas fa-exclamation-triangle stat-icon"></i>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-value" id="invalidRecords">0</div>
+                        <div class="stat-label">Hồ sơ không hợp lệ</div>
+                        <i class="fas fa-times-circle stat-icon"></i>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Thống kê hồ sơ theo tháng</div>
+                    <canvas id="statsChart"></canvas>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <div class="tab active" data-tab="tab1">Bảng dữ liệu đầu vào</div>
+                        <div class="tab" data-tab="tab2">Bảng dữ liệu đầu ra</div>
+                        <div class="tab" data-tab="tab3">Cảnh báo gần đây</div>
+                        <div class="tab" data-tab="tab4">Thống kê & Báo cáo</div>
+                    </div>
+
+                    <div class="tab-content active" id="tab1">
+                        <h3>Dữ liệu đầu vào theo QĐ 3618/QĐ-BHXH</h3>
+                        <div class="search-container">
+                            <div class="form-group search-input">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm hồ sơ...">
+                            </div>
+                            <button class="btn btn-primary" id="searchBtn">
+                                <i class="fas fa-search"></i> Tìm kiếm
+                            </button>
+                        </div>
+                        <div class="table-container">
+                            <table id="inputDataTable">
+                                <thead>
+                                    <tr>
+                                        <th>Mã hồ sơ</th>
+                                        <th>Ngày nhập</th>
+                                        <th>Loại hồ sơ</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inputDataBody">
+                                    <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tab2">
+                        <h3>Dữ liệu đầu ra theo QĐ 130, 4750, 3176/QĐ-BYT</h3>
+                        <div class="year-nav" id="yearNav">
+                            <!-- Nút năm sẽ được thêm bằng JavaScript -->
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên bảng</th>
+                                        <th>Mô tả</th>
+                                        <th>Số lượng bản ghi</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="outputDataBody">
+                                    <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tab3">
+                        <h3>Cảnh báo gần đây</h3>
+                        <div class="table-container">
+                            <table id="warningTable">
+                                <thead>
+                                    <tr>
+                                        <th>Thời gian</th>
+                                        <th>Mã cảnh báo</th>
+                                        <th>Mô tả</th>
+                                        <th>Mức độ</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="warningBody">
+                                    <!-- Dữ liệu sẽ được thêm bằng JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tab4">
+                        <h3>Thống kê & Báo cáo</h3>
+                        <div class="chart-container">
+                            <div class="chart-title">Phân loại hồ sơ theo trạng thái</div>
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">Tỷ lệ hồ sơ theo loại</div>
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quyết định 3618/QĐ-BHXH -->
+            <div id="qd-3618" class="content-section">
+                <div class="dashboard-header">
+                    <h2 class="dashboard-title">Quyết định 3618/QĐ-BHXH</h2>
+                </div>
+                
+                <div class="decision-content">
+                    <div class="decision-title">6 Bảng dữ liệu đầu vào theo QĐ 3618/QĐ-BHXH</div>
+                    
+                    <table class="decision-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên bảng</th>
+                                <th>Mô tả</th>
+                                <th>Số trường dữ liệu</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Bảng thông tin chung</td>
+                                <td>Thông tin cơ bản về cơ sở khám chữa bệnh và đối tượng tham gia BHXH</td>
+                                <td>25</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Bảng danh mục dịch vụ kỹ thuật</td>
+                                <td>Danh sách các dịch vụ kỹ thuật y tế được BHXH chi trả</td>
+                                <td>18</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Bảng danh mục thuốc</td>
+                                <td>Danh sách thuốc được BHXH chi trả theo quy định</td>
+                                <td>22</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Bảng danh mục vật tư y tế</td>
+                                <td>Danh sách vật tư y tế được BHXH chi trả</td>
+                                <td>15</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Bảng thông tin thanh toán</td>
+                                <td>Thông tin chi tiết về thanh toán viện phí và dịch vụ y tế</td>
+                                <td>30</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>Bảng tổng hợp dữ liệu</td>
+                                <td>Tổng hợp dữ liệu từ các bảng trên để xuất toán</td>
+                                <td>20</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quyết định 130/QĐ-BYT -->
+            <div id="qd-130" class="content-section">
+                <div class="dashboard-header">
+                    <h2 class="dashboard-title">Quyết định 130/QĐ-BYT</h2>
+                </div>
+                
+                <div class="decision-content">
+                    <div class="decision-title">13 Bảng dữ liệu đầu ra theo QĐ 130/QĐ-BYT</div>
+                    
+                    <table class="decision-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên bảng</th>
+                                <th>Mô tả</th>
+                                <th>Số trường dữ liệu</th>
+                                <th>Trạng thái</span></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Bảng thông tin cơ sở KCB</td>
+                                <td>Thông tin chi tiết về cơ sở khám chữa bệnh</td>
+                                <td>28</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Bảng danh sách người bệnh</td>
+                                <td>Thông tin chi tiết về người bệnh được khám chữa bệnh</td>
+                                <td>35</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Bảng dịch vụ kỹ thuật</td>
+                                <td>Chi tiết các dịch vụ kỹ thuật đã thực hiện</td>
+                                <td>42</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Bảng kê thuốc</td>
+                                <td>Danh sách thuốc đã sử dụng trong quá trình điều trị</td>
+                                <td>38</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Bảng kê vật tư y tế</td>
+                                <td>Danh sách vật tư y tế đã sử dụng</td>
+                                <td>32</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>Bảng thanh toán viện phí</td>
+                                <td>Chi tiết thanh toán các khoản viện phí</td>
+                                <td>45</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>Bảng tổng hợp chi phí</td>
+                                <td>Tổng hợp toàn bộ chi phí khám chữa bệnh</td>
+                                <td>25</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td>Bảng thông tin BHYT</td>
+                                <td>Thông tin về thẻ BHYT và quyền lợi của người bệnh</td>
+                                <td>30</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>9</td>
+                                <td>Bảng kết quả điều trị</td>
+                                <td>Kết quả và tình trạng sau điều trị của người bệnh</td>
+                                <td>40</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>10</td>
+                                <td>Bảng thống kê tổng hợp</td>
+                                <td>Thống kê tổng hợp toàn bộ dữ liệu khám chữa bệnh</td>
+                                <td>50</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>11</td>
+                                <td>Bảng đối chiếu dữ liệu</td>
+                                <td>Đối chiếu dữ liệu giữa các hệ thống</td>
+                                <td>35</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>12</td>
+                                <td>Bảng báo cáo tổng kết</td>
+                                <td>Báo cáo tổng kết định kỳ về hoạt động KCB</td>
+                                <td>60</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                            <tr>
+                                <td>13</td>
+                                <td>Bảng kiểm tra cảnh báo</td>
+                                <td>Các cảnh báo và lỗi trong quá trình xuất toán</td>
+                                <td>28</td>
+                                <td><span class="status-badge status-success">Đang hoạt động</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quyết định 4750/QĐ-BYT -->
+            <div id="qd-4750" class="content-section">
+                <div class="dashboard-header">
+                    <h2 class="dashboard-title">Quyết định 4750/QĐ-BYT</h2>
+                </div>
+                
+                <div class="decision-content">
+                    <div class="decision-title">Quy định về mã hóa và phân loại dịch vụ kỹ thuật</div>
+                    
+                    <div class="category-grid">
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-procedures"></i>
+                                <span>Nhóm dịch vụ chẩn đoán</span>
+                            </div>
+                            <ul class="category-list">
+                                <li><i class="fas fa-check"></i> Chẩn đoán hình ảnh</li>
+                                <li><i class="fas fa-check"></i> Xét nghiệm</li>
+                                <li><i class="fas fa-check"></i> Thăm dò chức năng</li>
+                                <li><i class="fas fa-check"></i> Nội soi</li>
+                                <li><i class="fas fa-check"></i> Siêu âm</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-user-md"></i>
+                                <span>Nhóm dịch vụ điều trị</span>
+                            </div>
+                            <ul class="category-list">
+                                <li><i class="fas fa-check"></i> Phẫu thuật</li>
+                                <li><i class="fas fa-check"></i> Thủ thuật</li>
+                                <li><i class="fas fa-check"></i> Vật lý trị liệu</li>
+                                <li><i class="fas fa-check"></i> Hồi sức cấp cứu</li>
+                                <li><i class="fas fa-check"></i> Chăm sóc đặc biệt</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-heartbeat"></i>
+                                <span>Nhóm dịch vụ hỗ trợ</span>
+                            </div>
+                            <ul class="category-list">
+                                <li><i class="fas fa-check"></i> Vận chuyển người bệnh</li>
+                                <li><i class="fas fa-check"></i> Dinh dưỡng</li>
+                                <li><i class="fas fa-check"></i> Tư vấn sức khỏe</li>
+                                <li><i class="fas fa-check"></i> Phục hồi chức năng</li>
+                                <li><i class="fas fa-check"></i> Theo dõi sau điều trị</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quyết định 3176/QĐ-BYT -->
+            <div id="qd-3176" class="content-section">
+                <div class="dashboard-header">
+                    <h2 class="dashboard-title">Quyết định 3176/QĐ-BYT</h2>
+                </div>
+                
+                <div class="decision-content">
+                    <div class="decision-title">Quy định về mã hóa và phân loại thuốc, vật tư y tế</div>
+                    
+                    <div class="category-grid">
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-pills"></i>
+                                <span>Nhóm thuốc theo dược lý</span>
+                            </div>
+                            <ul class="category-list">
+                                <li><i class="fas fa-check"></i> Kháng sinh</li>
+                                <li><i class="fas fa-check"></i> Giảm đau, hạ sốt</li>
+                                <li><i class="fas fa-check"></i> Tim mạch</li>
+                                <li><i class="fas fa-check"></i> Tiêu hóa</li>
+                                <li><i class="fas fa-check"></i> Thần kinh</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-syringe"></i>
+                                <span>Nhóm vật tư y tế</span>
+                            </div>
+                            <ul class="category-list">
+                                <li><i class="fas fa-check"></i> Bơm kim tiêm</li>
+                                <li><i class="fas fa-check"></i> Băng gạc</li>
+                                <li><i class="fas fa-check"></i> Dụng cụ phẫu thuật</li>
+                                <li><i class="fas fa-check"></i> Vật tư tiêu hao</li>
+                                <li><i class="fas fa-check"></i> Thiết bị y tế</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-vial"></i>
+                                <span>Nhóm hóa chất xét nghiệm</span>
+                            </div>
+                            <ul class="category-list">
+                                <li><i class="fas fa-check"></i> Hóa chất sinh hóa</li>
+                                <li><i class="fas fa-check"></i> Hóa chất huyết học</li>
+                                <li><i class="fas fa-check"></i> Hóa chất vi sinh</li>
+                                <li><i class="fas fa-check"></i> Hóa chất miễn dịch</li>
+                                <li><i class="fas fa-check"></i> Kit xét nghiệm</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh mục dùng chung -->
+            <div id="danh-muc" class="content-section">
+                <div class="dashboard-header">
+                    <h2 class="dashboard-title">Danh mục dùng chung</h2>
+                </div>
+                
+                <div class="decision-content">
+                    <div class="decision-title">Danh mục dùng chung của Bộ Y tế</div>
+                    
+                    <div class="category-grid">
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-hospital"></i>
+                                <span>Danh mục cơ sở KCB</span>
+                            </div>
+                            <ul class="category-list">
+                                <li><i class="fas fa-check"></i> Bệnh viện đa khoa</li>
+                                <li><i class="fas fa-check"></i> Bệnh viện chuyên khoa</li>
+                                <li><i class="fas fa-check"></i> Phòng khám đa khoa</li>
+                                <li><i class="fas fa-check"></i> Phòng khám chuyên khoa</li>
+                                <li><i class="fas fa-check"></i> Trạm y tế</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-user-md"></i>
+                                <span>Danh mục nhân lực y tế</span>
+                            </div>
+                            <ul class="category-list">
+                                <li><i class="fas fa-check"></i> Bác sĩ đa khoa</li>
+                                <li><i class="fas fa-check"></i> Bác sĩ chuyên khoa</li>
+                                <li><i class="fas fa-check"></i> Điều dưỡng</li>
+                                <li><i class="fas fa-check"></i> Kỹ thuật viên</li>
+                                <li><i class="fas fa-check"></i> Dược sĩ</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-stethoscope"></i>
+                                <span>Danh mục Y học cổ truyền</span>
+                            </div>
+                            <ul class="category-list">
+                                <li><i class="fas fa-check"></i> Thuốc YHCT</li>
+                                <li><i class="fas fa-check"></i> Phương pháp chữa bệnh</li>
+                                <li><i class="fas fa-check"></i> Huyệt đạo</li>
+                                <li><i class="fas fa-check"></i> Bài thuốc cổ phương</li>
+                                <li><i class="fas fa-check"></i> Vị thuốc nam</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kiểm tra ICD-10 -->
+            <div id="icd-10" class="content-section">
+                <div class="dashboard-header">
+                    <h2 class="dashboard-title">Kiểm tra mã ICD-10</h2>
+                </div>
+                
+                <div class="decision-content">
+                    <div class="decision-title">Tra cứu mã bệnh theo phân loại quốc tế ICD-10</div>
+                    
+                    <div class="category-grid">                                              
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-stethoscope"></i>
+                                <span><a href="https://icd.kcb.vn/icd-10/icd10" style="text-decoration: none;">Tra cứu mã bệnh ICD-10 Bộ Y tế</a></span>
+                            </div>                            
+                        </div>
+                        
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-yin-yang"></i>
+                                <span><a href="https://nguyenvandung1409.github.io/ai-tracuuicd10yhct/" style="text-decoration: none;">Tra cứu mã bệnh ICD-10 Y học cổ truyền</a></span>
+                            </div>                            
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+
+            <!-- Cài đặt hệ thống -->
+            <div id="settings" class="content-section">
+                <div class="dashboard-header">
+                    <h2 class="dashboard-title">Giường bệnh kế hoạch</h2>
+                </div>
+                
+                <div class="decision-content">
+                    <div class="decision-title">Tổng số giường bệnh tại các khoa, phòng (150 giường kế hoạch)</div>
+                    
+                    <div class="table-container" style="margin-top: 2rem;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên khoa</th>
+                                    <th>Số giường kế hoạch</th>
+                                    <th>Số giường nội trú ban ngày</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Khoa Nội (K03)</td>
+                                    <td>37 giường (H001-H037)</td>
+                                    <td>05/37 giường (H001-H005)</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Khoa Ngoại (K19)</td>
+                                    <td>23 giường (H001-H023)</td>
+                                    <td>06/23 giường (H001-H006)</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Khoa Lão (K17)</td>
+                                    <td>37 giường (H001-H037)</td>
+                                    <td>10/37 giường (H001-H010)</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Khoa Châm cứu (K45)</td>
+                                    <td>23 giường (H001-H023)</td>
+                                    <td>04/23 giường (H001-H004)</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Khoa PHCN (K31)</td>
+                                    <td>30 giường (H001-H030)</td>
+                                    <td>07/30 giường (H001-H007)</td>
+                                </tr>
+                                <tr style="font-weight: bold;">
+                                    <td></td>
+                                    <td>Tổng</td>
+                                    <td>150 giường</td>
+                                    <td>32/150 giường</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trợ giúp & Hỗ trợ -->
+            <div id="help" class="content-section">
+                <div class="dashboard-header">
+                    <h2 class="dashboard-title">Trợ giúp & Hỗ trợ</h2>
+                </div>
+                
+                <div class="decision-content">
+                    <div class="decision-title">Hướng dẫn sử dụng và hỗ trợ kỹ thuật</div>
+                    
+                    <div class="category-grid">
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-book"></i>
+                                <span>Tài liệu hướng dẫn</span>
+                            </div>
+                            <ul class="category-list">
+                                <li><i class="fas fa-download"></i> Hướng dẫn sử dụng</li>
+                                <li><i class="fas fa-download"></i> Quy trình nghiệp vụ</li>
+                                <li><i class="fas fa-download"></i> Biểu mẫu kê khai</li>
+                                <li><i class="fas fa-download"></i> Video hướng dẫn</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="category-card">
+                            <div class="category-title">
+                                <i class="fas fa-phone-alt"></i>
+                                <span>Hỗ trợ kỹ thuật</span>
+                            </div>
+                            <ul class="category-list">
+                                <li><i class="fas fa-phone"></i> Hotline: 1900 1234</li>
+                                <li><i class="fas fa-envelope"></i> Email: khth2016@gmail.com</li>
+                                <li><i class="fas fa-clock"></i> Thời gian: 08h-16h (T2-T6)</li>
+                                <li><i class="fas fa-map-marker-alt"></i> Địa chỉ: Phòng Kế hoạch tổng hợp - Điều dưỡng</li>
+                            </ul>
+                        </div>                        
+                        
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div>© 2023 Bảo Hiểm Xã Hội Việt Nam. Tất cả các quyền được bảo lưu.</div>
+            <div class="footer-links">
+                <a href="#">Chính sách bảo mật</a>
+                <a href="#">Điều khoản sử dụng</a>
+                <a href="#">Liên hệ hỗ trợ</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dữ liệu mẫu từ năm 2020 đến 2025
+        const sampleData = {
+            years: [2020, 2021, 2022, 2023, 2024, 2025],
+            months: [
+                'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+            ],
+            recordTypes: ['Khám chữa bệnh', 'Thanh toán viện phí', 'Dịch vụ kỹ thuật', 'Thuốc & Vật tư'],
+            statuses: ['Hợp lệ', 'Cảnh báo', 'Không hợp lệ'],
+            inputData: [],
+            outputData: [],
+            warnings: []
+        };
+
+        // Tạo dữ liệu mẫu
+        function generateSampleData() {
+            // Tạo dữ liệu đầu vào
+            for (let year of sampleData.years) {
+                for (let month = 1; month <= 12; month++) {
+                    const recordsPerMonth = Math.floor(Math.random() * 50) + 20; // 20-70 hồ sơ mỗi tháng
+                    
+                    for (let i = 0; i < recordsPerMonth; i++) {
+                        const recordType = sampleData.recordTypes[Math.floor(Math.random() * sampleData.recordTypes.length)];
+                        const status = sampleData.statuses[Math.floor(Math.random() * sampleData.statuses.length)];
+                        
+                        sampleData.inputData.push({
+                            id: `HS-${year}-${month.toString().padStart(2, '0')}-${(i+1).toString().padStart(3, '0')}`,
+                            date: `${Math.floor(Math.random() * 28) + 1}/${month.toString().padStart(2, '0')}/${year}`,
+                            type: recordType,
+                            status: status,
+                            year: year,
+                            month: month
+                        });
+                    }
+                }
+            }
+
+            // Tạo dữ liệu đầu ra
+            for (let year of sampleData.years) {
+                sampleData.outputData[year] = [];
+                for (let i = 1; i <= 13; i++) {
+                    sampleData.outputData[year].push({
+                        id: i,
+                        name: `Bảng ${i}: Dữ liệu đầu ra`,
+                        description: `Mô tả chi tiết cho bảng ${i} năm ${year}`,
+                        records: Math.floor(Math.random() * 10000) + 5000,
+                        status: Math.random() > 0.1 ? 'Hoàn thành' : 'Đang xử lý'
+                    });
+                }
+            }
+
+            // Tạo cảnh báo
+            for (let year of sampleData.years) {
+                for (let month = 1; month <= 12; month++) {
+                    const warningsPerMonth = Math.floor(Math.random() * 10) + 5; // 5-15 cảnh báo mỗi tháng
+                    
+                    for (let i = 0; i < warningsPerMonth; i++) {
+                        const severity = Math.random() > 0.7 ? 'Lỗi' : (Math.random() > 0.5 ? 'Cảnh báo' : 'Thông tin');
+                        
+                        sampleData.warnings.push({
+                            id: `WRN-${year}-${month.toString().padStart(2, '0')}-${(i+1).toString().padStart(3, '0')}`,
+                            date: `${Math.floor(Math.random() * 28) + 1}/${month.toString().padStart(2, '0')}/${year} ${Math.floor(Math.random() * 24)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
+                            description: `Cảnh báo về ${sampleData.recordTypes[Math.floor(Math.random() * sampleData.recordTypes.length)]}`,
+                            severity: severity,
+                            year: year,
+                            month: month
+                        });
+                    }
+                }
+            }
+        }
+
+        // Khởi tạo dữ liệu
+        generateSampleData();
+
+        // Tạo hiệu ứng tuyết rơi
+        function createSnowflakes() {
+            const snowContainer = document.getElementById('snow-container');
+            const snowflakesCount = 50;
+            
+            for (let i = 0; i < snowflakesCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.classList.add('snowflake');
+                snowflake.innerHTML = '❄';
+                
+                // Kích thước ngẫu nhiên
+                const size = Math.random() * 1.5 + 0.5;
+                snowflake.style.fontSize = `${size}em`;
+                
+                // Vị trí ngẫu nhiên
+                const startPosition = Math.random() * 100;
+                snowflake.style.left = `${startPosition}vw`;
+                
+                // Thời gian rơi ngẫu nhiên
+                const fallDuration = Math.random() * 10 + 5;
+                snowflake.style.animationDuration = `${fallDuration}s`;
+                
+                // Độ trễ ngẫu nhiên
+                const fallDelay = Math.random() * 5;
+                snowflake.style.animationDelay = `${fallDelay}s`;
+                
+                snowContainer.appendChild(snowflake);
+                
+                // Xóa snowflake sau khi rơi xong
+                setTimeout(() => {
+                    snowflake.remove();
+                }, (fallDuration + fallDelay) * 1000);
+            }
+        }
+        
+        // Tạo snowflake mỗi giây
+        setInterval(createSnowflakes, 1000);
+        createSnowflakes(); // Tạo ngay lập tức
+        
+        // Xử lý tab
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Xóa active từ tất cả các tab và nội dung
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Thêm active cho tab được click
+                tab.classList.add('active');
+                
+                // Hiển thị nội dung tương ứng
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Xử lý menu
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                
+                item.classList.add('active');
+                const contentId = item.getAttribute('data-content');
+                document.getElementById(contentId).classList.add('active');
+                
+                // Cuộn lên đầu trang khi chuyển phần
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Hiển thị thông báo
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            
+            notificationText.textContent = message;
+            notification.className = 'notification ' + type;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Kiểm tra mã ICD-10
+        document.getElementById('check-icd').addEventListener('click', () => {
+            const icdInput = document.getElementById('icd-input').value.trim();
+            const resultDiv = document.getElementById('icd-result');
+            const codeResult = document.getElementById('icd-code-result');
+            const descResult = document.getElementById('icd-description-result');
+            
+            if (icdInput) {
+                // Giả lập kết quả kiểm tra
+                const icdData = {
+                    'A00': 'Bệnh tả',
+                    'J45': 'Hen phế quản',
+                    'M54.2': 'Đau thắt lưng',
+                    'I10': 'Tăng huyết áp nguyên phát',
+                    'E11': 'Đái tháo đường type 2'
+                };
+                
+                if (icdData[icdInput]) {
+                    codeResult.textContent = icdInput;
+                    descResult.textContent = icdData[icdInput];
+                    resultDiv.style.display = 'block';
+                    showNotification('Mã ICD-10 hợp lệ', 'success');
+                } else {
+                    codeResult.textContent = icdInput;
+                    descResult.textContent = 'Mã ICD-10 không tồn tại trong danh mục';
+                    resultDiv.style.display = 'block';
+                    showNotification('Mã ICD-10 không hợp lệ', 'error');
+                }
+            } else {
+                showNotification('Vui lòng nhập mã ICD-10', 'warning');
+            }
+        });
+
+        // Khởi tạo bộ lọc
+        function initializeFilters() {
+            const yearFilter = document.getElementById('yearFilter');
+            const monthFilter = document.getElementById('monthFilter');
+            
+            // Thêm options cho năm
+            sampleData.years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+            
+            // Thêm options cho tháng
+            for (let i = 1; i <= 12; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Tháng ${i}`;
+                monthFilter.appendChild(option);
+            }
+            
+            // Mặc định chọn năm hiện tại
+            const currentYear = new Date().getFullYear();
+            yearFilter.value = currentYear;
+            
+            // Mặc định chọn tháng hiện tại
+            const currentMonth = new Date().getMonth() + 1;
+            monthFilter.value = currentMonth;
+        }
+
+        // Khởi tạo điều hướng năm
+        function initializeYearNav() {
+            const yearNav = document.getElementById('yearNav');
+            
+            sampleData.years.forEach(year => {
+                const button = document.createElement('button');
+                button.className = 'year-btn';
+                button.textContent = year;
+                button.dataset.year = year;
+                
+                if (year === 2023) {
+                    button.classList.add('active');
+                }
+                
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('.year-btn').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    displayOutputData(this.dataset.year);
+                });
+                
+                yearNav.appendChild(button);
+            });
+        }
+
+        // Hiển thị dữ liệu đầu vào
+        function displayInputData(yearFilter = 'all', monthFilter = 'all') {
+            const tbody = document.getElementById('inputDataBody');
+            tbody.innerHTML = '';
+            
+            let filteredData = sampleData.inputData;
+            
+            if (yearFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.year == yearFilter);
+            }
+            
+            if (monthFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.month == monthFilter);
+            }
+            
+            // Cập nhật thống kê
+            updateStats(filteredData);
+            
+            // Hiển thị dữ liệu
+            filteredData.forEach(item => {
+                const row = document.createElement('tr');
+                
+                let statusClass = '';
+                if (item.status === 'Hợp lệ') statusClass = 'status-success';
+                else if (item.status === 'Cảnh báo') statusClass = 'status-warning';
+                else statusClass = 'status-danger';
+                
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.date}</td>
+                    <td>${item.type}</td>
+                    <td><span class="status-badge ${statusClass}">${item.status}</span></td>
+                    <td class="action-buttons">
+                        <button class="btn btn-outline"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-outline"><i class="fas fa-edit"></i></button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Hiển thị dữ liệu đầu ra
+        function displayOutputData(year) {
+            const tbody = document.getElementById('outputDataBody');
+            tbody.innerHTML = '';
+            
+            const data = sampleData.outputData[year] || [];
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.description}</td>
+                    <td>${item.records.toLocaleString()}</td>
+                    <td><span class="status-badge ${item.status === 'Hoàn thành' ? 'status-success' : 'status-warning'}">${item.status}</span></td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Hiển thị cảnh báo
+        function displayWarnings(yearFilter = 'all', monthFilter = 'all') {
+            const tbody = document.getElementById('warningBody');
+            tbody.innerHTML = '';
+            
+            let filteredData = sampleData.warnings;
+            
+            if (yearFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.year == yearFilter);
+            }
+            
+            if (monthFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.month == monthFilter);
+            }
+            
+            filteredData.forEach(item => {
+                const row = document.createElement('tr');
+                
+                let severityClass = '';
+                if (item.severity === 'Lỗi') severityClass = 'status-danger';
+                else if (item.severity === 'Cảnh báo') severityClass = 'status-warning';
+                else severityClass = 'status-success';
+                
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.id}</td>
+                    <td>${item.description}</td>
+                    <td><span class="status-badge ${severityClass}">${item.severity}</span></td>
+                    <td><button class="btn btn-outline">Xem chi tiết</button></td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Cập nhật thống kê
+        function updateStats(data) {
+            const totalRecords = data.length;
+            const validRecords = data.filter(item => item.status === 'Hợp lệ').length;
+            const warningRecords = data.filter(item => item.status === 'Cảnh báo').length;
+            const invalidRecords = data.filter(item => item.status === 'Không hợp lệ').length;
+            
+            document.getElementById('totalRecords').textContent = totalRecords.toLocaleString();
+            document.getElementById('validRecords').textContent = validRecords.toLocaleString();
+            document.getElementById('warningRecords').textContent = warningRecords.toLocaleString();
+            document.getElementById('invalidRecords').textContent = invalidRecords.toLocaleString();
+        }
+
+        // Biểu đồ thống kê
+        let statsChart, statusChart, typeChart;
+
+        function initializeCharts() {
+            // Biểu đồ thống kê hồ sơ theo tháng
+            const statsCtx = document.getElementById('statsChart').getContext('2d');
+            statsChart = new Chart(statsCtx, {
+                type: 'bar',
+                data: {
+                    labels: sampleData.months,
+                    datasets: [{
+                        label: 'Hồ sơ hợp lệ',
+                        data: Array(12).fill(0).map(() => Math.floor(Math.random() * 100) + 50),
+                        backgroundColor: '#34a853',
+                        borderColor: '#34a853',
+                        borderWidth: 1
+                    }, {
+                        label: 'Hồ sơ cảnh báo',
+                        data: Array(12).fill(0).map(() => Math.floor(Math.random() * 30) + 10),
+                        backgroundColor: '#fbbc05',
+                        borderColor: '#fbbc05',
+                        borderWidth: 1
+                    }, {
+                        label: 'Hồ sơ không hợp lệ',
+                        data: Array(12).fill(0).map(() => Math.floor(Math.random() * 20) + 5),
+                        backgroundColor: '#ea4335',
+                        borderColor: '#ea4335',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Biểu đồ phân loại hồ sơ theo trạng thái
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            statusChart = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hợp lệ', 'Cảnh báo', 'Không hợp lệ'],
+                    datasets: [{
+                        data: [984, 187, 77],
+                        backgroundColor: [
+                            '#34a853',
+                            '#fbbc05',
+                            '#ea4335'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Biểu đồ tỷ lệ hồ sơ theo loại
+            const typeCtx = document.getElementById('typeChart').getContext('2d');
+            typeChart = new Chart(typeCtx, {
+                type: 'pie',
+                data: {
+                    labels: sampleData.recordTypes,
+                    datasets: [{
+                        data: [35, 25, 20, 20],
+                        backgroundColor: [
+                            '#1a73e8',
+                            '#34a853',
+                            '#fbbc05',
+                            '#ea4335'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Tìm kiếm
+        document.getElementById('searchBtn').addEventListener('click', function() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const yearFilter = document.getElementById('yearFilter').value;
+            const monthFilter = document.getElementById('monthFilter').value;
+            
+            let filteredData = sampleData.inputData;
+            
+            if (yearFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.year == yearFilter);
+            }
+            
+            if (monthFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.month == monthFilter);
+            }
+            
+            if (searchTerm) {
+                filteredData = filteredData.filter(item => 
+                    item.id.toLowerCase().includes(searchTerm) || 
+                    item.type.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Cập nhật bảng
+            const tbody = document.getElementById('inputDataBody');
+            tbody.innerHTML = '';
+            
+            filteredData.forEach(item => {
+                const row = document.createElement('tr');
+                
+                let statusClass = '';
+                if (item.status === 'Hợp lệ') statusClass = 'status-success';
+                else if (item.status === 'Cảnh báo') statusClass = 'status-warning';
+                else statusClass = 'status-danger';
+                
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.date}</td>
+                    <td>${item.type}</td>
+                    <td><span class="status-badge ${statusClass}">${item.status}</span></td>
+                    <td class="action-buttons">
+                        <button class="btn btn-outline"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-outline"><i class="fas fa-edit"></i></button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            updateStats(filteredData);
+        });
+
+        // Áp dụng bộ lọc
+        document.getElementById('applyFilter').addEventListener('click', function() {
+            const yearFilter = document.getElementById('yearFilter').value;
+            const monthFilter = document.getElementById('monthFilter').value;
+            
+            displayInputData(yearFilter, monthFilter);
+            displayWarnings(yearFilter, monthFilter);
+        });
+
+        // Đặt lại bộ lọc
+        document.getElementById('resetFilter').addEventListener('click', function() {
+            document.getElementById('yearFilter').value = 'all';
+            document.getElementById('monthFilter').value = 'all';
+            document.getElementById('searchInput').value = '';
+            
+            displayInputData('all', 'all');
+            displayWarnings('all', 'all');
+        });
+
+        // Nút quay về đầu trang
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+        
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Khởi tạo trang
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFilters();
+            initializeYearNav();
+            initializeCharts();
+            
+            // Hiển thị dữ liệu mặc định
+            displayInputData(2023, new Date().getMonth() + 1);
+            displayOutputData(2023);
+            displayWarnings(2023, new Date().getMonth() + 1);
+        });
+    </script>
+</body>
+</html>
