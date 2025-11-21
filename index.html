@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <!-- Nếu file ảnh của bạn là favicon.png -->
     <link rel="icon" href="./favicon.png" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* CSS cũ giữ nguyên */
         :root {
             --primary: #1a73e8;
             --secondary: #34a853;
@@ -39,6 +39,7 @@
             min-height: 100vh;
         }
 
+        /* CSS cũ giữ nguyên */
         .snowflake {
             position: absolute;
             top: -10px;
@@ -189,6 +190,10 @@
             margin-bottom: 1.5rem;
             align-items: center;
             flex-wrap: wrap;
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .filter-group {
@@ -200,6 +205,7 @@
         .filter-label {
             font-weight: 500;
             color: #5f6368;
+            white-space: nowrap;
         }
 
         .filter-select {
@@ -208,11 +214,12 @@
             border-radius: 5px;
             background: white;
             cursor: pointer;
+            min-width: 120px;
         }
 
         .stats-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -737,6 +744,12 @@
         .category-list i {
             color: var(--primary);
             font-size: 0.9rem;
+        }
+
+        @media (max-width: 1200px) {
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         @media (max-width: 992px) {
@@ -1386,14 +1399,14 @@
                         <div class="category-card">
                             <div class="category-title">
                                 <i class="fas fa-stethoscope"></i>
-                                <span><a href="https://icd.kcb.vn/icd-10/icd10" style="text-decoration: none;">Tra cứu mã bệnh ICD-10 Bộ Y tế</a></span>
+                                <span><a href="https://icd.kcb.vn/icd-10/icd10" style="text-decoration: none;" target="_blank">Tra cứu mã bệnh ICD-10 Bộ Y tế</a></span>
                             </div>                            
                         </div>
                         
                         <div class="category-card">
                             <div class="category-title">
                                 <i class="fas fa-yin-yang"></i>
-                                <span><a href="https://nguyenvandung1409.github.io/ai-tracuuicd10yhct/" style="text-decoration: none;">Tra cứu mã bệnh ICD-10 Y học cổ truyền</a></span>
+                                <span><a href="https://nguyenvandung1409.github.io/ai-tracuuicd10yhct/" style="text-decoration: none;" target="_blank">Tra cứu mã bệnh ICD-10 Y học cổ truyền</a></span>
                             </div>                            
                         </div>
                     </div>                    
@@ -1440,7 +1453,7 @@
                                 </tr>
                                 <tr>
                                     <td>4</td>
-                                    <td>Khoa Châm cứu (K45)</td>
+                                    <td>Khoa Châm cứu (K16)</td>
                                     <td>23 giường (H001-H023)</td>
                                     <td>04/23 giường (H001-H004)</td>
                                 </tr>
@@ -1675,39 +1688,6 @@
                 notification.classList.remove('show');
             }, 3000);
         }
-
-        // Kiểm tra mã ICD-10
-        document.getElementById('check-icd').addEventListener('click', () => {
-            const icdInput = document.getElementById('icd-input').value.trim();
-            const resultDiv = document.getElementById('icd-result');
-            const codeResult = document.getElementById('icd-code-result');
-            const descResult = document.getElementById('icd-description-result');
-            
-            if (icdInput) {
-                // Giả lập kết quả kiểm tra
-                const icdData = {
-                    'A00': 'Bệnh tả',
-                    'J45': 'Hen phế quản',
-                    'M54.2': 'Đau thắt lưng',
-                    'I10': 'Tăng huyết áp nguyên phát',
-                    'E11': 'Đái tháo đường type 2'
-                };
-                
-                if (icdData[icdInput]) {
-                    codeResult.textContent = icdInput;
-                    descResult.textContent = icdData[icdInput];
-                    resultDiv.style.display = 'block';
-                    showNotification('Mã ICD-10 hợp lệ', 'success');
-                } else {
-                    codeResult.textContent = icdInput;
-                    descResult.textContent = 'Mã ICD-10 không tồn tại trong danh mục';
-                    resultDiv.style.display = 'block';
-                    showNotification('Mã ICD-10 không hợp lệ', 'error');
-                }
-            } else {
-                showNotification('Vui lòng nhập mã ICD-10', 'warning');
-            }
-        });
 
         // Khởi tạo bộ lọc
         function initializeFilters() {
@@ -2028,6 +2008,8 @@
             
             displayInputData(yearFilter, monthFilter);
             displayWarnings(yearFilter, monthFilter);
+            
+            showNotification(`Đã áp dụng bộ lọc: ${yearFilter !== 'all' ? 'Năm ' + yearFilter : 'Tất cả năm'} - ${monthFilter !== 'all' ? 'Tháng ' + monthFilter : 'Tất cả tháng'}`, 'success');
         });
 
         // Đặt lại bộ lọc
@@ -2038,6 +2020,8 @@
             
             displayInputData('all', 'all');
             displayWarnings('all', 'all');
+            
+            showNotification('Đã đặt lại bộ lọc', 'success');
         });
 
         // Nút quay về đầu trang
@@ -2062,9 +2046,9 @@
             initializeCharts();
             
             // Hiển thị dữ liệu mặc định
-            displayInputData(2023, new Date().getMonth() + 1);
+            displayInputData('all', 'all');
             displayOutputData(2023);
-            displayWarnings(2023, new Date().getMonth() + 1);
+            displayWarnings('all', 'all');
         });
     </script>
 </body>
